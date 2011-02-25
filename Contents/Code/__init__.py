@@ -1,14 +1,14 @@
 from BeautifulSoup import BeautifulStoneSoup as BSS
 
-RSS_FEED = 'http://www.annakimphotography.com/feed'
+RSS_FEED = 'http://blog.catspawimages.com/feed'
 PHOTO_NS = {'c':'http://purl.org/rss/1.0/modules/content/'}
 
 ####################################################################################################
 def Start():
-  Plugin.AddPrefixHandler("/photos/annakimphotography", PhotoMenu, 'Anna Kim Photography', 'icon-default.png', 'art-default.jpg')
+  Plugin.AddPrefixHandler("/photos/catspawimages", PhotoMenu, "Cat's Paw Images", 'icon-default.png', 'art-default.jpg')
   Plugin.AddViewGroup("Details", viewMode="InfoList", mediaType="items")
   Plugin.AddViewGroup("Images", viewMode="Pictures", mediaType="items")
-  MediaContainer.title1 = 'Anna Kim Photography'
+  MediaContainer.title1 = "Cat's Paw Images"
   MediaContainer.content = 'Items'
   MediaContainer.art = R('art-default.jpg')
   HTTP.SetCacheTime(3600*3)
@@ -28,16 +28,16 @@ def PhotoMenu():
     date = Datetime.ParseDate(item.find('pubDate').text).strftime('%a %b %d, %Y')
     try: thumb = FindPhotos(item.xpath('c:encoded', namespaces=PHOTO_NS)[0].text)[0]
     except: continue
-    dir.Append(Function(DirectoryItem(PhotoList, title, date, summary, thumb), key=item.find('link').text))
+    dir.Append(Function(DirectoryItem(PhotoList, title, date, summary, thumb), key=item.find('link').text, title=title))
     
   return dir
   
 ####################################################################################################
-def PhotoList(sender, key):
-  dir = MediaContainer(viewGroup='Images', title2="Photos")
+def PhotoList(sender, key, title):
+  dir = MediaContainer(viewGroup='Images', title2=title)
   image = 1
   for item in HTML.ElementFromURL(key).xpath('//img'):
-    if item.get('src').find('wp-content/uploads') != -1:
+    if item.get('src').find('static.flickr.com') != -1:
       dir.Append(PhotoItem(item.get('src'), title="Photo %d" % image, thumb=item.get('src')))
       image += 1
   return dir
