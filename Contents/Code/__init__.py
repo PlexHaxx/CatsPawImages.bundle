@@ -38,7 +38,7 @@ def PhotoList(sender, key, title):
   image = 1
   for item in HTML.ElementFromURL(key).xpath('//img'):
     if item.get('src').find('static.flickr.com') != -1:
-      dir.Append(PhotoItem(item.get('src'), title="Photo %d" % image, thumb=item.get('src')))
+      dir.Append(PhotoItem(item.get('src'), title=item.get('alt'), thumb=item.get('src')))
       image += 1
   return dir
 
