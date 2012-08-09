@@ -8,9 +8,8 @@ def Start():
   Plugin.AddPrefixHandler("/photos/catspawimages", PhotoMenu, "Cat's Paw Images", 'icon-default.png', 'art-default.jpg')
   Plugin.AddViewGroup("Details", viewMode="InfoList", mediaType="items")
   Plugin.AddViewGroup("Images", viewMode="Pictures", mediaType="items")
-  MediaContainer.title1 = "Cat's Paw Images"
-  MediaContainer.content = 'Items'
-  MediaContainer.art = R('art-default.jpg')
+  ObjectContainer.title1 = "Cat's Paw Images"
+  ObjectContainer.art = R('art-default.jpg')
   HTTP.SetCacheTime(3600*3)
 
 ####################################################################################################
@@ -19,7 +18,7 @@ def UpdateCache():
 
 ####################################################################################################
 def PhotoMenu():
-  dir = MediaContainer(viewGroup='Details', title2="Photos")
+  oc = ObjectContainer(title2="Photos")
   for item in XML.ElementFromURL(RSS_FEED).xpath('//item'):
     title = item.find('title').text
     summary = item.xpath('description')[0].text.replace('<p>','').replace('</p>','').replace('<br />',"\n").replace(' [...]', '...')
@@ -28,19 +27,23 @@ def PhotoMenu():
     date = Datetime.ParseDate(item.find('pubDate').text).strftime('%a %b %d, %Y')
     try: thumb = FindPhotos(item.xpath('c:encoded', namespaces=PHOTO_NS)[0].text)[0]
     except: continue
-    dir.Append(Function(DirectoryItem(PhotoList, title, date, summary, thumb), key=item.find('link').text, title=title))
+    key = item.find('link').text
+    oc.add(PhotoAlbumObject(key=Callback(PhotoList, key=item.find('link').text, title=title), title = title, thumb = thumb, url = key))
     
-  return dir
+  return oc
   
 ####################################################################################################
-def PhotoList(sender, key, title):
-  dir = MediaContainer(viewGroup='Images', title2=title)
+def PhotoList(key, title):
+  oc = ObjectContainer(title2=title)
   image = 1
   for item in HTML.ElementFromURL(key).xpath('//img'):
     if item.get('src').find('static.flickr.com') != -1:
-      dir.Append(PhotoItem(item.get('src'), title=item.get('alt'), summary=item.get('alt'), thumb=item.get('src')))
+      oc.add(PhotoObject(url = item.get('src'), title=item.get('alt'), summary=item.get('alt'), thumb=item.get('src'),
+              items = [
+                MediaObject(parts = [ PartObject(key=item.get('src')) ])
+              ]))
       image += 1
-  return dir
+  return oc
 
 ####################################################################################################
 def FindPhotos(html):
