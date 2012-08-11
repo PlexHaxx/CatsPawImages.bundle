@@ -37,7 +37,8 @@ def PhotoMenu():
     summary = soup.contents[0]
 
     # Technically, I should use the url parameter of the PhotoAlbumObject to perform a service lookup.
-    # However, this currently introduces a 
+    # However, this currently introduces an additional level in the structure which is undesired. 
+    # Therefore, I'm doing this all manually.
     oc.add(PhotoAlbumObject(
       key = Callback(PhotoList, url = url, title = title), 
       rating_key = url,
@@ -53,7 +54,7 @@ def PhotoList(url, title):
 
   for item in HTML.ElementFromURL(url).xpath('//img'):
     if item.get('src').find('static.flickr.com') != -1:
-      
+
       url = item.get('src')
       title = item.get('alt')
       oc.add(PhotoObject(
