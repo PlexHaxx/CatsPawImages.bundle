@@ -9,7 +9,6 @@ ART   = "art-default.jpg"
 
 ####################################################################################################
 def Start():
-  Plugin.AddPrefixHandler("/photos/catspawimages", PhotoMenu, TITLE, ICON, ART)
   Plugin.AddViewGroup("Details", viewMode="InfoList", mediaType="items")
   Plugin.AddViewGroup("Images", viewMode="Pictures", mediaType="items")
 
@@ -19,6 +18,7 @@ def Start():
   HTTP.SetCacheTime(3600 * 3)
 
 ####################################################################################################
+@handler('/photos/catspawimages', TITLE, art = ART, thumb = ICON)
 def PhotoMenu():
   oc = ObjectContainer(title2 = "Photos")
 
@@ -49,6 +49,7 @@ def PhotoMenu():
   return oc
   
 ####################################################################################################
+@route('/photos/catspawimages/list', allow_sync = True)
 def PhotoList(url, title):
   oc = ObjectContainer(title2=title)
 
@@ -68,6 +69,7 @@ def PhotoList(url, title):
   return oc
 
 ####################################################################################################
+@route('/photos/catspawimages/details', allow_sync = True)
 def GetPhotoDetails(url, title):
   oc = ObjectContainer()
   oc.add(PhotoObject(
